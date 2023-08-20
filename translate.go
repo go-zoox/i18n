@@ -7,10 +7,10 @@ import (
 	"github.com/spf13/cast"
 )
 
-// Translate translates the given key with the given arguments.
-func (i *i18n) Translate(locale string, key string, data ...map[string]any) (string, error) {
+// translate translates the given key with the given arguments.
+func translate(locales map[string]Translations, locale string, key string, data ...map[string]any) (string, error) {
 	// Get the translation for the given key.
-	translations, ok := i.locales[locale]
+	translations, ok := locales[locale]
 	if !ok {
 		return "", fmt.Errorf("invalid locale: %s", locale)
 	}
@@ -28,10 +28,9 @@ func (i *i18n) Translate(locale string, key string, data ...map[string]any) (str
 	return strings.Format(translation, data[0]), nil
 }
 
-// T is an alias for Translate.
-// if the translation is not found, it returns the key.
-func (i *i18n) T(locale string, key string, data ...map[string]any) string {
-	translation, err := i.Translate(locale, key, data...)
+// t is an alias for translate.
+func t(locales map[string]Translations, locale string, key string, data ...map[string]any) string {
+	translation, err := translate(locales, locale, key, data...)
 	if err != nil {
 		return key
 	}

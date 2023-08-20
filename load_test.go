@@ -7,7 +7,7 @@ import (
 )
 
 func TestLoadLocalesFromFile(t *testing.T) {
-	locales, err := LoadLocalesFromFile("./tests/locales.json")
+	locales, err := loadLocalesFromFile("./tests/locales.json")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func TestLoadLocalesFromFile(t *testing.T) {
 }
 
 func TestLoadLocalesFromDir(t *testing.T) {
-	locales, err := LoadLocalesFromDir("./tests/lang")
+	locales, err := loadLocalesFromDir("./tests/lang")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ func TestLoadLocalesFromDir(t *testing.T) {
 }
 
 func TestLoadLocalesFromURL(t *testing.T) {
-	locales, err := LoadLocalesFromURL("https://raw.githubusercontent.com/go-zoox/i18n/master/tests/locales.json")
+	locales, err := loadLocalesFromURL("https://raw.githubusercontent.com/go-zoox/i18n/master/tests/locales.json")
 	if err != nil {
 		t.Fatal(err)
 	}

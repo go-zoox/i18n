@@ -1,57 +1,107 @@
 package i18n
 
 import (
-	"github.com/go-zoox/logger"
+	"fmt"
+
+	"github.com/go-zoox/fetch"
+	"github.com/go-zoox/fs"
+	"github.com/go-zoox/fs/type/json"
+	"github.com/go-zoox/fs/type/yaml"
 )
 
-// Load loads the given locale and translations into the I18n instance.
-func (i *i18n) Load(fn func() (map[string]Translations, error)) error {
-	locales, err := fn()
+// loadLocalesFromFile loads locales from file
+// Only support JSON, YAML, TOML and INI format.
+func loadLocalesFromFile(filepath string) (map[string]Translations, error) {
+	ext := fs.ExtName(filepath)
+	locales := make(map[string]Translations)
+	switch ext {
+	case ".json":
+		if err := json.Read(filepath, &locales); err != nil {
+			return nil, err
+		}
+	case ".yaml", ".yml":
+		if err := yaml.Read(filepath, &locales); err != nil {
+			return nil, err
+		}
+	case ".toml":
+		if err := yaml.Read(filepath, &locales); err != nil {
+			return nil, err
+		}
+	case ".ini":
+		if err := yaml.Read(filepath, &locales); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unsupported locale file format: %s", ext)
+	}
+
+	return locales, nil
+}
+
+// loadLocalesFromDir loads locales from dir
+// The directory structure should be like this:
+// lang/
+//
+//		en-US.json
+//		zh-CN.json
+//		en-US.yaml
+//		en-US.toml
+//	 	en-US.ini
+//		...
+//
+// Only support JSON, YAML, TOML and INI format.
+func loadLocalesFromDir(dir string) (map[string]Translations, error) {
+	files, err := fs.ListDir(dir)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	i.locales = locales
-	for locale, _ := range locales {
-		logger.Infof("[i18n] loaded locale: %s", locale)
+	locales := make(map[string]Translations, len(files))
+	for _, file := range files {
+		fileName := file.Name()
+		ext := fs.ExtName(fileName)
+		localeName := fileName[:len(fileName)-len(ext)]
+		filepath := fs.JoinPath(dir, fileName)
+		translations := Translations{}
+
+		switch ext {
+		case ".json":
+			if err := json.Read(filepath, &translations); err != nil {
+				return nil, err
+			}
+		case ".yaml", ".yml":
+			if err := yaml.Read(filepath, &translations); err != nil {
+				return nil, err
+			}
+		case ".toml":
+			if err := yaml.Read(filepath, &translations); err != nil {
+				return nil, err
+			}
+		case ".ini":
+			if err := yaml.Read(filepath, &translations); err != nil {
+				return nil, err
+			}
+		default:
+			return nil, fmt.Errorf("unsupported locale file format: %s", ext)
+		}
+
+		locales[localeName] = translations
 	}
 
-	return nil
+	return locales, nil
 }
 
-// LoadFromFile loads the given locale and translations into the I18n instance.
-func (i *i18n) LoadFromFile(file string) error {
-	return i.Load(func() (map[string]Translations, error) {
-		locales, err := LoadLocalesFromFile(file)
-		if err != nil {
-			return nil, err
-		}
+// loadLocalesFromURL loads locales from url with JSON format.
+func loadLocalesFromURL(url string) (map[string]Translations, error) {
+	response, err := fetch.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch locale file from %s: %s", url, err)
+	}
 
-		return locales, nil
-	})
-}
+	locales := map[string]Translations{}
+	if err := response.UnmarshalJSON(&locales); err != nil {
+		return nil, err
+	}
 
-// LoadFromDir loads the given locale and translations into the I18n instance.
-func (i *i18n) LoadFromDir(dir string) error {
-	return i.Load(func() (map[string]Translations, error) {
-		locales, err := LoadLocalesFromDir(dir)
-		if err != nil {
-			return nil, err
-		}
-
-		return locales, nil
-	})
-}
-
-// LoadFromURL loads the given locale and translations into the I18n instance.
-// Only support JSON format.
-func (i *i18n) LoadFromURL(url string) error {
-	return i.Load(func() (map[string]Translations, error) {
-		locales, err := LoadLocalesFromURL(url)
-		if err != nil {
-			return nil, err
-		}
-
-		return locales, nil
-	})
+	return locales, nil
 }
