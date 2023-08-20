@@ -9,10 +9,14 @@ import (
 
 // translate translates the given key with the given arguments.
 func translate(locales map[string]Translations, locale string, key string, data ...map[string]any) (string, error) {
+	if locales == nil {
+		return "", fmt.Errorf("locales not loaded")
+	}
+
 	// Get the translation for the given key.
 	translations, ok := locales[locale]
 	if !ok {
-		return "", fmt.Errorf("invalid locale: %s", locale)
+		return "", fmt.Errorf("locale(%s) not found", locale)
 	}
 
 	translation, ok := translations[key]

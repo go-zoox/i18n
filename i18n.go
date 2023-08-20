@@ -6,13 +6,23 @@ type I18n interface {
 	// Load loads the given locale and translations into the I18n instance.
 	Load(fn func() (map[string]Translations, error)) error
 
-	// LoadFromDir loads the given locale and translations into the I18n instance.
-	LoadFromDir(dir string) error
-
 	// Translate translates the given key with the given arguments.
 	Translate(locale string, key string, data ...map[string]any) (string, error)
 	// T is an alias for Translate.
 	T(locale string, key string, data ...map[string]any) string
+
+	// LoadFromFile loads the given locale and translations into the I18n instance.
+	LoadFromFile(filepath string) error
+	// LoadFromDir loads the given locale and translations into the I18n instance.
+	LoadFromDir(dir string) error
+	// LoadFromURL loads the given locale and translations into the I18n instance.
+	LoadFromURL(url string) error
+
+	//
+	IsLocalesLoaded() bool
+
+	// GetLocales returns the loaded locales.
+	GetLocales() map[string]Translations
 }
 
 type i18n struct {
@@ -88,4 +98,14 @@ func (i *i18n) LoadFromURL(url string) error {
 
 		return locales, nil
 	})
+}
+
+// IsLocalesLoaded returns true if the locales are loaded.
+func (i *i18n) IsLocalesLoaded() bool {
+	return i.locales != nil
+}
+
+// GetLocales returns the loaded locales.
+func (i *i18n) GetLocales() map[string]Translations {
+	return i.locales
 }
