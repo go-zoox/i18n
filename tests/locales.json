@@ -1,0 +1,15 @@
+{
+  "en-US": {
+    "en-US": "en-US",
+    "zh-CN": "zh-CN",
+    "name": "name",
+    "age": "age"
+  },
+  "zh-CN": {
+    "en-US": "英文",
+    "zh-CN": "中文",
+    "name": "姓名",
+    "age": "年龄"
+  }
+
+}
