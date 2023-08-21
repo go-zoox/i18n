@@ -2,6 +2,7 @@ package i18n
 
 import "github.com/go-zoox/logger"
 
+// I18n ...
 type I18n interface {
 	// Load loads the given locale and translations into the I18n instance.
 	Load(fn func() (map[string]Translations, error)) error
@@ -30,6 +31,7 @@ type i18n struct {
 	locales map[string]Translations
 }
 
+// Translations ...
 type Translations = map[string]string
 
 // New creates a new I18n instance with the given locale and translations.
@@ -56,7 +58,7 @@ func (i *i18n) Load(fn func() (map[string]Translations, error)) error {
 	}
 
 	i.locales = locales
-	for locale, _ := range locales {
+	for locale := range locales {
 		logger.Infof("[i18n] loaded locale: %s", locale)
 	}
 
